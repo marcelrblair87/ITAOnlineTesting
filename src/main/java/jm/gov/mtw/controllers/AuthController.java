@@ -26,17 +26,19 @@ import java.util.Optional;
 public class AuthController {
 
     @Autowired
-    private AuthService authService;
-    @Autowired
     private UserRepository userRepository;
     @Autowired
     private JwtUtil jwtUtil;
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request, HttpServletResponse response) {
-        boolean valid = authService.verifyUser(request.getTrn(), request.getFirstName(), request.getLastName());
+        Optional<User> optionalUser = userRepository.findByTrnAndFirstNameIgnoreCaseAndLastNameIgnoreCase(
+                request.getTrn(),
+                request.getFirstName(),
+                request.getLastName()
+        );
 
-        if (!valid) {
+        if (optionalUser.isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new LoginResponse("Invalid credentials"));
         }
 
@@ -94,7 +96,7 @@ public class AuthController {
                 .secure(true)
                 .path("/")
                 .maxAge(0)
-                .sameSite("Strict")
+                .sameSite("None")
                 .build();
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
     }
@@ -105,7 +107,7 @@ public class AuthController {
                 .secure(true)
                 .path("/")
                 .maxAge(maxAge)
-                .sameSite("Strict")
+                .sameSite("None")
                 .build();
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
     }

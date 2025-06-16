@@ -5,6 +5,7 @@ import jm.gov.mtw.dto.AppointmentRequest;
 import jm.gov.mtw.models.Appointment;
 import jm.gov.mtw.models.User;
 import jm.gov.mtw.repository.AppointmentRepository;
+import jm.gov.mtw.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +20,8 @@ public class AppointmentService {
 
     @Autowired
     private AppointmentRepository repository;
+    @Autowired
+    private UserRepository userRepository;
 
     private static final List<DateTimeFormatter> formatters = List.of(
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"),
@@ -47,14 +50,21 @@ public class AppointmentService {
             throw new ValidationException("Duplicate appointment: this TRN already has an appointment at this time.");
         }
 
+        User user = userRepository.findByTrn(request.getTrn())
+                .orElseGet(() -> {
+                    User u = new User();
+                    u.setTrn(request.getTrn());
+                    u.setFirstName(request.getFirstName());
+                    u.setLastName(request.getLastName());
+                    // set other fields if needed
+                    return userRepository.save(u); // Save the user here
+                });
+
         Appointment appointment = new Appointment();
-        User user = new User();
         //ToDo: need to flesh out the appointment request object
-        user.setFirstName(request.getFirstName());
-        user.setLastName(request.getLastName());
-        user.setTrn(request.getTrn());
         appointment.setUser(user);
         appointment.setAppointmentDateTime(appointmentDate);
+        appointment.setLocation(request.getLocation());
 
         return repository.save(appointment);
     }

@@ -20,4 +20,7 @@ public class AppointmentRequest {
     @NotBlank(message = "Appointment date is required (format: yyyy-MM-dd HH:mm:ss)")
     private String appointmentDate;
 
+    @NotBlank(message = "Location is required")
+    private String location;
+
 }

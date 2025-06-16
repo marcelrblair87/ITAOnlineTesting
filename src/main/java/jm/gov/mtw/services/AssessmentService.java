@@ -12,10 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,14 +32,10 @@ public class AssessmentService {
     public Assessment startAssessment(String trn) {
         LocalDateTime today = LocalDateTime.now();
         System.out.println("Trn: " + trn);
-        Appointment appointment = appointmentRepository.findByUser_Trn(trn).stream().findFirst().orElseThrow();
-                /*appointmentRepository.findByTrnAndAppointmentDate(trn, today)
-                .orElseThrow(() -> new RuntimeException("No appointment found."));*/
-
-        if (!appointment.getAppointmentDateTime().toLocalDate().isEqual(today.toLocalDate())) {
-            throw new RuntimeException("Assessment only allowed on appointment day.");
-        }
-
+        Appointment appointment = appointmentRepository.findByUser_Trn(trn).stream()
+                .filter(app -> app.getAppointmentDateTime().toLocalDate().isEqual(today.toLocalDate()))
+                .min(Comparator.comparing(Appointment::getAppointmentDateTime))
+                .orElseThrow(() -> new RuntimeException("Could not start assessment. Make sure today is your appointment."));
         User user = userRepository.findByTrn(trn)
                 .orElseThrow(() -> new RuntimeException("No user found."));
 

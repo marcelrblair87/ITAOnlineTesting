@@ -3,7 +3,9 @@ package jm.gov.mtw;
 import jakarta.validation.ValidationException;
 import jm.gov.mtw.dto.AppointmentRequest;
 import jm.gov.mtw.models.Appointment;
+import jm.gov.mtw.models.User;
 import jm.gov.mtw.repository.AppointmentRepository;
+import jm.gov.mtw.repository.UserRepository;
 import jm.gov.mtw.services.AppointmentService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,6 +24,8 @@ class AppointmentServiceTest {
 
     @Autowired
     private AppointmentRepository repository;
+    @Autowired
+    private UserRepository userRepository;
 
     @BeforeEach
     void setup() {
@@ -30,6 +34,12 @@ class AppointmentServiceTest {
 
     @Test
     void testSuccessfulAppointmentCreation() {
+        User user = new User();
+        user.setTrn("123456789");
+        user.setFirstName("John");
+        user.setLastName("Doe");
+        userRepository.save(user);
+
         AppointmentRequest req = new AppointmentRequest();
         req.setFirstName("John");
         req.setLastName("Doe");

@@ -4,6 +4,7 @@ import jm.gov.mtw.models.Appointment;
 import jm.gov.mtw.models.User;
 import jm.gov.mtw.repository.AppointmentRepository;
 import jm.gov.mtw.repository.UserRepository;
+import jm.gov.mtw.repository.AssessmentRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,9 +32,14 @@ public class AppointmentControllerIntegrationTest {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private AssessmentRepository assessmentRepository;
+
     @BeforeEach
     void setUp() {
-        appointmentRepository.deleteAll(); // Clean the DB before each test
+        appointmentRepository.deleteAll();
+        // ensure assessments are deleted first if cascade is not enabled
+        assessmentRepository.deleteAll();
         userRepository.deleteAll();
     }
 
@@ -48,7 +54,10 @@ public class AppointmentControllerIntegrationTest {
         String appointmentJson = """
             {
                 "trn": "123456789",
-                "appointmentDate": "2030-12-31T10:00"
+                "firstName": "Jane",
+                "lastName": "Doe",
+                "appointmentDate": "2030-12-31 10:00:00",
+                "location": "Downtown Hub"
             }
         """;
 
